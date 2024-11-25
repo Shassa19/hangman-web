@@ -18,6 +18,7 @@ type Game struct {
 	AttemptsLeft  int
 	UsedLetters   map[rune]bool
 	HangmanStages []string
+	Message       string
 }
 
 var (
@@ -99,6 +100,7 @@ func nouvellePartie() *Game {
 		AttemptsLeft:  10,
 		UsedLetters:   make(map[rune]bool),
 		HangmanStages: etapes,
+		Message:       "",
 	}
 }
 
@@ -145,6 +147,7 @@ func saveGame(w http.ResponseWriter, r *http.Request, game *Game) {
 
 func gameHandler(w http.ResponseWriter, r *http.Request) {
 	game := getGame(r)
+	game.Message = ""
 
 	if r.Method == http.MethodPost {
 		letter := r.FormValue("lettre")
@@ -158,17 +161,29 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 							game.RevealedWord[i] = letterRune
 						}
 					}
+					game.Message = "Bonne lettre !"
 				} else {
 					game.AttemptsLeft--
+					game.Message = "Lettre incorrecte."
 				}
+			} else {
+				game.Message = "Vous avez déjà essayé cette lettre."
 			}
+		} else {
+			game.Message = "Veuillez entrer une seule lettre."
 		}
 	}
+
+	lettersTried := []string{}
+	for letter := range game.UsedLetters {
+		lettersTried = append(lettersTried, string(letter))
+	}
+	lettersTriedString := strings.Join(lettersTried, ", ")
 
 	win := strings.Compare(game.Word, string(game.RevealedWord)) == 0
 	lose := game.AttemptsLeft <= 0
 
-	tmpl, err := template.ParseFiles("hangman.tmpl")
+	tmpl, err := template.ParseFiles("template/hangman.tmpl")
 	if err != nil {
 		http.Error(w, "Erreur lors du chargement du template HTML", http.StatusInternalServerError)
 		return
@@ -180,7 +195,8 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		"Perdu":               lose,
 		"Gagne":               win,
 		"Mot":                 game.Word,
-		"LettresEssayees":     game.UsedLetters,
+		"LettresEssayees":     lettersTriedString,
+		"Message":             game.Message,
 		"HangmanStage":        game.HangmanStages[10-game.AttemptsLeft],
 	}
 
@@ -193,12 +209,9 @@ func afficherMotRevele(revealedWord []rune) string {
 }
 
 func main() {
-
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
 	http.HandleFunc("/", gameHandler)
 
-	// Démarrer le serveur
 	fmt.Println("Le serveur est en cours d'exécution sur http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }
