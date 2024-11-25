@@ -1,3 +1,38 @@
-*{
-    background-color: black;
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #eef;
+    color: #333;
+    padding: 20px;
+}
+
+h1 {
+    color: #5a9;
+}
+
+.hangman-stage {
+    font-family: monospace;
+    margin: 20px auto;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    display: inline-block;
+}
+
+.word-reveal {
+    font-size: 20px;
+    margin: 20px 0;
+}
+
+button {
+    padding: 10px 20px;
+    background: #5a9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #478;
 }
