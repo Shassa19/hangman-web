@@ -1,8 +1,8 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background-color: #eef;
-    color: #333;
+    background-color: rgb(49, 51, 56);
+    color: whitesmoke;
     padding: 20px;
 }
 
@@ -10,14 +10,6 @@ h1 {
     color: #5a9;
 }
 
-.hangman-stage {
-    font-family: monospace;
-    margin: 20px auto;
-    padding: 10px;
-    background: #fff;
-    border: 1px solid #ccc;
-    display: inline-block;
-}
 
 .word-reveal {
     font-size: 20px;
