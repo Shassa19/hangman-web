@@ -13,12 +13,11 @@ import (
 )
 
 type Game struct {
-	Word          string
-	RevealedWord  []rune
-	AttemptsLeft  int
-	UsedLetters   map[rune]bool
-	HangmanStages []string
-	Message       string
+	Word         string
+	RevealedWord []rune
+	AttemptsLeft int
+	UsedLetters  map[rune]bool
+	Message      string
 }
 
 var (
@@ -30,7 +29,6 @@ var (
 
 func init() {
 	mots = chargerMots("words.txt")
-	etapes = chargerPendu("hangman.txt")
 }
 
 func chargerMots(fichier string) []string {
@@ -55,38 +53,6 @@ func chargerMots(fichier string) []string {
 	return mots
 }
 
-func chargerPendu(fichier string) []string {
-	file, err := os.Open(fichier)
-	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture du fichier :", err)
-		os.Exit(1)
-	}
-	defer file.Close()
-
-	var stages []string
-	var stage string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			stages = append(stages, stage)
-			stage = ""
-		} else {
-			stage += line + "\n"
-		}
-	}
-	if stage != "" {
-		stages = append(stages, stage)
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Erreur lors de la lecture du fichier :", err)
-		os.Exit(1)
-	}
-
-	return stages
-}
-
 func choisirMot(mots []string) string {
 	rand.Seed(time.Now().UnixNano())
 	return mots[rand.Intn(len(mots))]
@@ -95,12 +61,11 @@ func choisirMot(mots []string) string {
 func nouvellePartie() *Game {
 	word := choisirMot(mots)
 	return &Game{
-		Word:          word,
-		RevealedWord:  revelerLettres(word, len(word)/2-1),
-		AttemptsLeft:  10,
-		UsedLetters:   make(map[rune]bool),
-		HangmanStages: etapes,
-		Message:       "",
+		Word:         word,
+		RevealedWord: revelerLettres(word, len(word)/2-1),
+		AttemptsLeft: 10,
+		UsedLetters:  make(map[rune]bool),
+		Message:      "",
 	}
 }
 
@@ -197,7 +162,6 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		"Mot":                 game.Word,
 		"LettresEssayees":     lettersTriedString,
 		"Message":             game.Message,
-		"HangmanStage":        game.HangmanStages[10-game.AttemptsLeft],
 	}
 
 	saveGame(w, r, game)
